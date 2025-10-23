@@ -2,10 +2,10 @@ from textnode import TextNode, TextType
 import  os
 import shutil
 from extract_markdown import *
+import sys
 
 def copy_recursive(src,dst):
     if os.path.isfile(src):
-        # dst_file = os.path.join(dst, os.path.basename(src))
         os.makedirs(os.path.dirname(dst),exist_ok=True)
         shutil.copy2(src,dst)
     else:
@@ -15,14 +15,14 @@ def copy_recursive(src,dst):
                 os.path.join(src,name),
                 os.path.join(dst,name),
             )
-            # src_child = os.path.join(src,name)
-            # dst_child = os.path.join(dst,name)
-            # copy_recursive(src_child,dst_child)
-
-
-
 def main():
-    destination = "public"
+    if len(sys.argv) == 1:
+        basepath = "/"
+    elif len(sys.argv) == 2:
+        basepath = sys.argv[1]
+    else:
+        raise Exception("Error with number of arguments")
+    destination = "docs"
     source = "static"
     shutil.rmtree(destination)
     os.mkdir(destination)
@@ -32,23 +32,15 @@ def main():
             if file.endswith(".md"):
                 full_path = os.path.join(root,file)
                 rel = os.path.relpath(root,"content")
-                dest_dir = os.path.join("public",rel)
+                dest_dir = os.path.join(destination,rel)
                 dest_path = os.path.join(dest_dir,file[:-3]+".html")
                 generate_page(
                         from_path=full_path,
                         template_path="template.html",
                         dest_path=dest_path,
+                        basepath=basepath
                 )
-        # if "index.md" in files:
-            # full_path = os.path.join(root,"index.md")
-            # rel = os.path.relpath(root,"content")
-            # dest_dir = os.path.join("public",rel)
-            # dest_path=os.path.join(dest_dir,"index.html")
-            # generate_page(
-                # from_path=full_path,
-                # template_path="template.html",
-                # dest_path=dest_path,
-            # )
+
 if __name__ == "__main__":
     main()
 
